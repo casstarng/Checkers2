@@ -9,7 +9,7 @@ public class CheckerBoardManager extends JPanel {
 
     String test = "";
     CheckerBoard board = new CheckerBoard();
-    Color nextTurn;
+    Color nextTurn = Color.RED;
     boolean initialTurn = true;
     ArrayList<String> nextChain = null;
     ArrayList<Integer> commandWithKingDeleted = new ArrayList<>();
@@ -50,6 +50,8 @@ public class CheckerBoardManager extends JPanel {
             }
         }
 
+        // Paint Pieces that can be moved
+        checkMoveablePieces();
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(5));
         g.drawRect(60,60,50,50);
@@ -72,6 +74,20 @@ public class CheckerBoardManager extends JPanel {
             g.setColor(Color.WHITE);
             g.drawString("K", 27 + (x * 50),  45 + (y * 50));
         }
+    }
+
+    public String checkMoveablePieces(){
+        for(int i = 0; i < board.getBoard().length; i++){
+            for(int k = 0; k < board.getBoard()[i].length; k++){
+                // Red's turn
+                if (board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.RED){
+                    if ( i-1 > 0 && k-1 > 0 && board.getBoard()[i-1][k-1] == null){
+                        System.out.println(i + " " + k);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
