@@ -64,23 +64,6 @@ public class MainController {
         } );
     }
 
-
-    /**
-     * Translates coordinates from commands.txt into 2d-array grids
-     */
-    private static int[] translateCoordinate(String coord){
-        String[] coordValue = coord.split("-");
-        String val1 = returnTranslatedCoordinate(coordValue[0]);
-        String val2 = returnTranslatedCoordinate(coordValue[1]);
-        String totalVal = val1 + "-" + val2;
-        int[] xyCoord = new int[4];
-        String[] numCoord = totalVal.split("-");
-        for(int i = 0; i < numCoord.length; i++){
-            xyCoord[i] = Integer.parseInt(numCoord[i]);
-        }
-        return xyCoord;
-    }
-
     private static String getMouseCoordinate(int x, int y){
         if ( 10 < x && x < 60 && 10 < y && y < 60 ) return "0-0";
         else if ( 110 < x && x < 160 && 10 < y && y < 60 ) return "0-2";

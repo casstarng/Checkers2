@@ -49,6 +49,10 @@ public class CheckerBoardManager extends JPanel {
                 }
             }
         }
+
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(5));
+        g.drawRect(60,60,50,50);
     }
 
     /**
