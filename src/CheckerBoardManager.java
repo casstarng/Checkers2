@@ -97,19 +97,39 @@ public class CheckerBoardManager extends JPanel {
             for(int k = 0; k < board.getBoard()[i].length; k++){
                 // Red's turn
                 if (currentTurn == Color.RED && board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.RED){
+                    // Get 1 space up left
                     if (i - 1 >= 0 && k - 1 >= 0 && board.getBoard()[i-1][k-1] == null){
                         if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
+                    // Get 1 space up right
                     if (i - 1 >= 0 && k + 1 < board.getBoard().length && board.getBoard()[i-1][k+1] == null){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    // Get 2 space up left, delete
+                    if (i - 2 >= 0 && k - 2 >= 0 && board.getBoard()[i-2][k-2] == null && board.getBoard()[i-1][k-1] != null && board.getBoard()[i-1][k-1].getColor() == Color.BLACK){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    // Get 2 space up right, delete
+                    if (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() == Color.BLACK){
                         if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
                 }
                 // Black's turn
                 else if (currentTurn == Color.BLACK && board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.BLACK){
+                    // Get 1 space down left
                     if (i + 1 < board.getBoard().length && k - 1 >= 0 && board.getBoard()[i+1][k-1] == null){
                         if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
+                    // Get 1 space down right
                     if (i + 1 < board.getBoard().length && k + 1 < board.getBoard().length && board.getBoard()[i+1][k+1] == null){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    // Get 2 space down left, delete
+                    if (i + 2 < board.getBoard().length && k - 2 >= 0 && board.getBoard()[i+2][k-2] == null && board.getBoard()[i+1][k-1] != null && board.getBoard()[i+1][k-1].getColor() == Color.RED){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    // Get 2 space down right, delete
+                    if (i + 2 < board.getBoard().length && k + 2 < board.getBoard().length && board.getBoard()[i+2][k+2] == null && board.getBoard()[i+1][k+1] != null && board.getBoard()[i+1][k+1].getColor() == Color.RED){
                         if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
                 }
@@ -156,6 +176,11 @@ public class CheckerBoardManager extends JPanel {
     }
 
     private String move(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
+        // If piece reaches end, change piece to king
+        if ((color == Color.BLACK && g == 7) || (color == Color.RED && g == 0)){
+            isKing = true;
+        }
+
         // Check if piece moves 1 space
         if (Math.abs(y - g) == 1 && Math.abs(x - h) == 1 && board.getBoard()[g][h] == null){
             // If piece is black, check if move goes down
