@@ -51,8 +51,9 @@ public class CheckerBoardManager extends JPanel {
 
         // Paint piece in a chain sequence
         if (nextChain != null){
+            System.out.println(nextChain.toString());
             String[] spot = nextChain.get(0).split("-");
-            g.setColor(Color.GREEN);
+            g.setColor(Color.CYAN);
             Graphics2D g2 = (Graphics2D) g;
             g2.setStroke(new BasicStroke(5));
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
@@ -62,7 +63,7 @@ public class CheckerBoardManager extends JPanel {
             ArrayList<String> moveablePieces = checkMoveablePieces();
             for (String piece : moveablePieces){
                 String[] spot = piece.split("-");
-                g.setColor(Color.GREEN);
+                g.setColor(Color.CYAN);
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setStroke(new BasicStroke(5));
                 g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
@@ -98,6 +99,11 @@ public class CheckerBoardManager extends JPanel {
         }
     }
 
+    //TODO Mandatory jump can be jumped to a non-mandatory jump
+    //TODO Issue with Black King only being able to move
+    //TODO King can jump after becoming a king
+    //TODO Check for winner
+    //TODO Moveable spots
     public ArrayList<String> checkMoveablePieces(){
         ArrayList<String> moveablePieces = new ArrayList<>();
         ArrayList<String> jumpablePieces = new ArrayList<>();
