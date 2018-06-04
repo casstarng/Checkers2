@@ -193,8 +193,12 @@ public class CheckerBoardManager extends JPanel {
 
         // Check if piece moves 1 space
         if (Math.abs(y - g) == 1 && Math.abs(x - h) == 1 && board.getBoard()[g][h] == null){
+            // If piece is a king, then move
+            if (isKing){
+                board.movePiece(y, x, g, h, color, isKing);
+            }
             // If piece is black, check if move goes down
-            if (color == Color.BLACK && g > y){
+            else if (color == Color.BLACK && g > y){
                 board.movePiece(y, x, g, h, color, isKing);
             }
             // If piece is red, check if move goes up
@@ -208,8 +212,35 @@ public class CheckerBoardManager extends JPanel {
         }
         // Check if piece moves 2 spaces (needs to delete opposing piece)
         else if (Math.abs(y - g) == 2 && Math.abs(x - h) == 2 && board.getBoard()[g][h] == null){
+            // If piece is a king
+            if (isKing){
+                // If piece moves up-left
+                if (y - g > 0 && x - h > 0 && board.getBoard()[y - 1][x - 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y - 1, x - 1);
+                }
+                // If piece moves up-right
+                else if (y - g > 0 && x - h < 0 && board.getBoard()[y - 1][x + 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y - 1, x + 1);
+                }
+                // If piece moves down-left
+                else if (y - g < 0 && x - h > 0 && board.getBoard()[y + 1][x - 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y + 1, x - 1);
+                }
+                // If piece moves down-right
+                else if (y - g < 0 && x - h < 0 && board.getBoard()[y + 1][x + 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y + 1, x + 1);
+                }
+                else{
+                    return "Illegal Move";
+                }
+                return null;
+            }
             // If piece is black, check if move goes down
-            if (color == Color.BLACK && g > y){
+            else if (color == Color.BLACK && g > y){
                 // check if case moves left and that the piece will skip over a red piece
                 if (x - h > 0 && board.getBoard()[y + 1][x - 1] != null && board.getBoard()[y + 1][x - 1].getColor() != color){
                     board.movePiece(y, x, g, h, color, isKing);
