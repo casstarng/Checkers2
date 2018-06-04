@@ -14,7 +14,7 @@ public class CheckerBoardManager extends JPanel {
     ArrayList<String> nextChain = null;
     ArrayList<Integer> commandWithKingDeleted = new ArrayList<>();
     ArrayList<Integer> commandWithKingCreated = new ArrayList<>();
-    String clickedSpot;
+    String selectedSpot;
 
     public CheckerBoardManager(CheckerBoard board){
         test = "this is a test";
@@ -60,14 +60,11 @@ public class CheckerBoardManager extends JPanel {
             g2.setStroke(new BasicStroke(5));
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
         }
-//        Graphics2D g2 = (Graphics2D) g;
-//        g2.setStroke(new BasicStroke(5));
-//        g.drawRect(60,60,50,50);
 
         // Clicked spot
-        if (clickedSpot != null){
+        if (selectedSpot != null){
             g.setColor(Color.WHITE);
-            String[] spot = clickedSpot.split("-");
+            String[] spot = selectedSpot.split("-");
             Graphics2D g2 = (Graphics2D) g;
             g2.setStroke(new BasicStroke(5));
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
@@ -93,11 +90,6 @@ public class CheckerBoardManager extends JPanel {
         }
     }
 
-    public void setClickedSpot(String spot){
-        this.clickedSpot = spot;
-        System.out.println(spot);
-    }
-
     public ArrayList<String> checkMoveablePieces(){
         ArrayList<String> moveablePieces = new ArrayList<>();
         for(int i = 0; i < board.getBoard().length; i++){
@@ -113,15 +105,30 @@ public class CheckerBoardManager extends JPanel {
                 }
             }
         }
-        System.out.println(moveablePieces.toString());
         return moveablePieces;
+    }
+
+    public void move(String spot){
+        ArrayList<String> moveablePieces = checkMoveablePieces();
+        if (selectedSpot == null && moveablePieces.contains(spot)){
+            selectedSpot = spot;
+        }
+        else{
+            String[] oldSpot = selectedSpot.split("-");
+            String[] newSpot = spot.split("-");
+            // TODO ensure new spot is empty
+            CheckerPiece piece = board.getBoard()[Integer.parseInt(oldSpot[0])][Integer.parseInt(oldSpot[1])];
+            board.movePiece(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
+                    Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing());
+            selectedSpot = null;
+        }
     }
 
     /**
      * Handles moving pieces. All logic is contained here
      * @return message if a winner is announced or an illegal move is made
      */
-    public String move(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
+    public String moveOLD(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
 
         // Checks to see if a chain needs to be made
         if (nextChain != null){
