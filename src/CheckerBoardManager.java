@@ -78,6 +78,7 @@ public class CheckerBoardManager extends JPanel {
             g2.setStroke(new BasicStroke(5));
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
 
+            // Draw available spots to move to
             ArrayList<String> spotsToMove = getMoveOptions(Integer.parseInt(spot[1]), Integer.parseInt(spot[0]));
             for (String availSpots : spotsToMove){
                 spot = availSpots.split("-");
@@ -190,9 +191,35 @@ public class CheckerBoardManager extends JPanel {
             if (y - 1 >= 0 && x + 1 < board.getBoard().length && board.getBoard()[y-1][x+1] == null){
                 if (!moveable.contains((y-1) + "-" + (x+1)))  moveable.add((y-1) + "-" + (x+1));
             }
+            // Get 2 space up left, delete
+            if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() == Color.BLACK){
+                if (!jumpable.contains((y-2) + "-" + (x-2)))  jumpable.add((y-2) + "-" + (x-2));
+            }
+            // Get 2 space up right, delete
+            if (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null && board.getBoard()[y-1][x+1] != null && board.getBoard()[y-1][x+1].getColor() == Color.BLACK){
+                if (!jumpable.contains((y-2) + "-" + (x+2)))  jumpable.add((y-2) + "-" + (x+2));
+            }
         }
-
-        return moveable;
+        else if (selectedPiece.getColor() == Color.BLACK){
+            // Get 1 space down left
+            if (y + 1 < board.getBoard().length && x - 1 >= 0 && board.getBoard()[y+1][x-1] == null){
+                if (!moveable.contains((y+1) + "-" + (x-1)))  moveable.add((y+1) + "-" + (x-1));
+            }
+            // Get 1 space down right
+            if (y + 1 < board.getBoard().length && x + 1 < board.getBoard().length && board.getBoard()[y+1][x+1] == null){
+                if (!moveable.contains((y+1) + "-" + (x+1)))  moveable.add((y+1) + "-" + (x+1));
+            }
+            // Get 2 space down left, delete
+            if (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null && board.getBoard()[y+1][x-1] != null && board.getBoard()[y+1][x-1].getColor() == Color.RED){
+                if (!jumpable.contains((y+2) + "-" + (x-2)))  jumpable.add((y+2) + "-" + (x-2));
+            }
+            // Get 2 space down right, delete
+            if (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null && board.getBoard()[y+1][x+1] != null && board.getBoard()[y+1][x+1].getColor() == Color.RED){
+                if (!jumpable.contains((y+2) + "-" + (x+2)))  jumpable.add((y+2) + "-" + (x+2));
+            }
+        }
+        if (jumpable.size() > 0) return jumpable;
+        else return moveable;
     }
 
     public void select(String spot){
