@@ -10,6 +10,7 @@ public class CheckerBoardManager extends JPanel {
     String test = "";
     CheckerBoard board = new CheckerBoard();
     Color nextTurn = Color.RED;
+    Color currentTurn = Color.RED;
     boolean initialTurn = true;
     ArrayList<String> nextChain = null;
     ArrayList<Integer> commandWithKingDeleted = new ArrayList<>();
@@ -95,11 +96,20 @@ public class CheckerBoardManager extends JPanel {
         for(int i = 0; i < board.getBoard().length; i++){
             for(int k = 0; k < board.getBoard()[i].length; k++){
                 // Red's turn
-                if (board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.RED){
+                if (currentTurn == Color.RED && board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.RED){
                     if (i - 1 >= 0 && k - 1 >= 0 && board.getBoard()[i-1][k-1] == null){
                         if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
                     if (i - 1 >= 0 && k + 1 < board.getBoard().length && board.getBoard()[i-1][k+1] == null){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                }
+                // Black's turn
+                else if (currentTurn == Color.BLACK && board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.BLACK){
+                    if (i + 1 < board.getBoard().length && k - 1 >= 0 && board.getBoard()[i+1][k-1] == null){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    if (i + 1 < board.getBoard().length && k + 1 < board.getBoard().length && board.getBoard()[i+1][k+1] == null){
                         if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
                 }
@@ -113,14 +123,21 @@ public class CheckerBoardManager extends JPanel {
         if (selectedSpot == null && moveablePieces.contains(spot)){
             selectedSpot = spot;
         }
+        else if (selectedSpot == null){
+            return;
+        }
         else{
             String[] oldSpot = selectedSpot.split("-");
             String[] newSpot = spot.split("-");
-            // TODO ensure new spot is empty
+            // TODO ensure new spot is empty and not wrong direction
             CheckerPiece piece = board.getBoard()[Integer.parseInt(oldSpot[0])][Integer.parseInt(oldSpot[1])];
             board.movePiece(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
                     Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing());
             selectedSpot = null;
+
+            // Switch turns
+            if (currentTurn == Color.RED) currentTurn = Color.BLACK;
+            else currentTurn = Color.RED;
         }
     }
 
