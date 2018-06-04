@@ -52,14 +52,24 @@ public class CheckerBoardManager extends JPanel {
             }
         }
 
-        // Paint Pieces that can be moved
-        ArrayList<String> moveablePieces = checkMoveablePieces();
-        for (String piece : moveablePieces){
-            String[] spot = piece.split("-");
+        // Paint piece in a chain sequence
+        if (nextChain != null){
+            String[] spot = nextChain.get(0).split("-");
             g.setColor(Color.GREEN);
             Graphics2D g2 = (Graphics2D) g;
             g2.setStroke(new BasicStroke(5));
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+        }
+        // Paint Pieces that can be moved
+        else{
+            ArrayList<String> moveablePieces = checkMoveablePieces();
+            for (String piece : moveablePieces){
+                String[] spot = piece.split("-");
+                g.setColor(Color.GREEN);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setStroke(new BasicStroke(5));
+                g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+            }
         }
 
         // Clicked spot
@@ -175,7 +185,7 @@ public class CheckerBoardManager extends JPanel {
             String msg = move(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
                     Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing(), 0);
 
-            if (msg != null){
+            if (msg != null || nextChain != null){
                 return;
             }
 
@@ -186,6 +196,18 @@ public class CheckerBoardManager extends JPanel {
     }
 
     private String move(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
+        if (nextChain != null) System.out.println(nextChain.toString());
+        // Checks to see if a chain needs to be made
+        if (nextChain != null){
+            String currentCommand = y + "-" + x + "-" + g + "-" + h;
+            if (nextChain.contains(currentCommand)){
+                nextChain = null;
+            }
+            else {
+                return "Illegal Move: Another jump must be made";
+            }
+        }
+
         // If piece reaches end, change piece to king
         if ((color == Color.BLACK && g == 7) || (color == Color.RED && g == 0)){
             isKing = true;
@@ -237,6 +259,9 @@ public class CheckerBoardManager extends JPanel {
                 else{
                     return "Illegal Move";
                 }
+                // Check if next step is chainable
+                nextChain = checkForChain(g, h, color, isKing);
+                if (nextChain != null) return null;
                 return null;
             }
             // If piece is black, check if move goes down
@@ -245,11 +270,19 @@ public class CheckerBoardManager extends JPanel {
                 if (x - h > 0 && board.getBoard()[y + 1][x - 1] != null && board.getBoard()[y + 1][x - 1].getColor() != color){
                     board.movePiece(y, x, g, h, color, isKing);
                     board.deletePiece(y + 1, x - 1);
+
+                    // Check if next step is chainable
+                    nextChain = checkForChain(g, h, color, isKing);
+                    if (nextChain != null) return null;
                 }
                 // check if case moves right and that the piece will skip over a red piece
                 else if (x - h < 0 && board.getBoard()[y + 1][x + 1] != null && board.getBoard()[y + 1][x + 1].getColor() != color){
                     board.movePiece(y, x, g, h, color, isKing);
                     board.deletePiece(y + 1, x + 1);
+
+                    // Check if next step is chainable
+                    nextChain = checkForChain(g, h, color, isKing);
+                    if (nextChain != null) return null;
                 }
                 else {
                     return "Illegal Move";
@@ -262,11 +295,19 @@ public class CheckerBoardManager extends JPanel {
                 if (x - h > 0 && board.getBoard()[y - 1][x - 1] != null && board.getBoard()[y - 1][x - 1].getColor() != color){
                     board.movePiece(y, x, g, h, color, isKing);
                     board.deletePiece(y - 1, x - 1);
+
+                    // Check if next step is chainable
+                    nextChain = checkForChain(g, h, color, isKing);
+                    if (nextChain != null) return null;
                 }
                 // check if case moves right and that the piece will skip over a black piece
                 else if (x - h < 0 && board.getBoard()[y - 1][x + 1] != null && board.getBoard()[y - 1][x + 1].getColor() != color){
                     board.movePiece(y, x, g, h, color, isKing);
                     board.deletePiece(y - 1, x + 1);
+
+                    // Check if next step is chainable
+                    nextChain = checkForChain(g, h, color, isKing);
+                    if (nextChain != null) return null;
                 }
                 else {
                     return "Illegal Move";
