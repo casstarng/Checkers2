@@ -7,7 +7,6 @@ import java.util.ArrayList;
  */
 public class CheckerBoardManager extends JPanel {
 
-    String test = "";
     CheckerBoard board = new CheckerBoard();
     Color nextTurn = Color.RED;
     Color currentTurn = Color.RED;
@@ -18,9 +17,7 @@ public class CheckerBoardManager extends JPanel {
     String selectedSpot;
 
     public CheckerBoardManager(CheckerBoard board){
-        test = "this is a test";
         this.board = board;
-        System.out.println(test);
     }
 
     /**
@@ -103,6 +100,7 @@ public class CheckerBoardManager extends JPanel {
 
     public ArrayList<String> checkMoveablePieces(){
         ArrayList<String> moveablePieces = new ArrayList<>();
+        ArrayList<String> jumpablePieces = new ArrayList<>();
         for(int i = 0; i < board.getBoard().length; i++){
             for(int k = 0; k < board.getBoard()[i].length; k++){
                 // If piece is king
@@ -112,7 +110,14 @@ public class CheckerBoardManager extends JPanel {
                             || (i - 1 >= 0 && k + 1 < board.getBoard().length && board.getBoard()[i-1][k+1] == null)
                             || (i + 1 < board.getBoard().length && k - 1 >= 0 && board.getBoard()[i+1][k-1] == null)
                             || (i + 1 < board.getBoard().length && k + 1 < board.getBoard().length && board.getBoard()[i+1][k+1] == null)){
-                        moveablePieces.add(i + "-" + k);
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    // Get 2 space in all directions
+                    if ((i - 2 >= 0 && k - 2 >= 0 && board.getBoard()[i-2][k-2] == null && board.getBoard()[i-1][k-1] != null && board.getBoard()[i-1][k-1].getColor() != board.getBoard()[i][k].getColor())
+                            || (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() == board.getBoard()[i][k].getColor())
+                            || (i + 2 < board.getBoard().length && k - 2 >= 0 && board.getBoard()[i+2][k-2] == null && board.getBoard()[i+1][k-1] != null && board.getBoard()[i+1][k-1].getColor() == board.getBoard()[i][k].getColor())
+                            || (i + 2 < board.getBoard().length && k + 2 < board.getBoard().length && board.getBoard()[i+2][k+2] == null && board.getBoard()[i+1][k+1] != null && board.getBoard()[i+1][k+1].getColor() == board.getBoard()[i][k].getColor())){
+                        if (!jumpablePieces.contains(i + "-" + k))  jumpablePieces.add(i + "-" + k);
                     }
                 }
                 // Red's turn
@@ -127,11 +132,11 @@ public class CheckerBoardManager extends JPanel {
                     }
                     // Get 2 space up left, delete
                     if (i - 2 >= 0 && k - 2 >= 0 && board.getBoard()[i-2][k-2] == null && board.getBoard()[i-1][k-1] != null && board.getBoard()[i-1][k-1].getColor() == Color.BLACK){
-                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                        if (!jumpablePieces.contains(i + "-" + k))  jumpablePieces.add(i + "-" + k);
                     }
                     // Get 2 space up right, delete
                     if (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() == Color.BLACK){
-                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                        if (!jumpablePieces.contains(i + "-" + k))  jumpablePieces.add(i + "-" + k);
                     }
                 }
                 // Black's turn
@@ -146,16 +151,17 @@ public class CheckerBoardManager extends JPanel {
                     }
                     // Get 2 space down left, delete
                     if (i + 2 < board.getBoard().length && k - 2 >= 0 && board.getBoard()[i+2][k-2] == null && board.getBoard()[i+1][k-1] != null && board.getBoard()[i+1][k-1].getColor() == Color.RED){
-                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                        if (!jumpablePieces.contains(i + "-" + k))  jumpablePieces.add(i + "-" + k);
                     }
                     // Get 2 space down right, delete
                     if (i + 2 < board.getBoard().length && k + 2 < board.getBoard().length && board.getBoard()[i+2][k+2] == null && board.getBoard()[i+1][k+1] != null && board.getBoard()[i+1][k+1].getColor() == Color.RED){
-                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                        if (!jumpablePieces.contains(i + "-" + k))  jumpablePieces.add(i + "-" + k);
                     }
                 }
             }
         }
-        return moveablePieces;
+        if (jumpablePieces.size() > 0) return jumpablePieces;
+        else return moveablePieces;
     }
 
     public void select(String spot){
