@@ -77,6 +77,13 @@ public class CheckerBoardManager extends JPanel {
             Graphics2D g2 = (Graphics2D) g;
             g2.setStroke(new BasicStroke(5));
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+
+            ArrayList<String> spotsToMove = getMoveOptions(Integer.parseInt(spot[1]), Integer.parseInt(spot[0]));
+            for (String availSpots : spotsToMove){
+                spot = availSpots.split("-");
+                g.setColor(Color.GREEN);
+                g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+            }
         }
     }
 
@@ -168,6 +175,24 @@ public class CheckerBoardManager extends JPanel {
         }
         if (jumpablePieces.size() > 0) return jumpablePieces;
         else return moveablePieces;
+    }
+
+    public ArrayList<String> getMoveOptions(int x, int y){
+        ArrayList<String> moveable = new ArrayList<>();
+        ArrayList<String> jumpable = new ArrayList<>();
+        CheckerPiece selectedPiece = board.getBoard()[y][x];
+        if (selectedPiece.getColor() == Color.RED){
+            // Get 1 space up left
+            if (y - 1 >= 0 && x - 1 >= 0 && board.getBoard()[y-1][x-1] == null){
+                if (!moveable.contains((y-1) + "-" + (x-1)))  moveable.add((y-1) + "-" + (x-1));
+            }
+            // Get 1 space up right
+            if (y - 1 >= 0 && x + 1 < board.getBoard().length && board.getBoard()[y-1][x+1] == null){
+                if (!moveable.contains((y-1) + "-" + (x+1)))  moveable.add((y-1) + "-" + (x+1));
+            }
+        }
+
+        return moveable;
     }
 
     public void select(String spot){
