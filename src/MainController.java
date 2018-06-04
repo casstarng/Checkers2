@@ -42,7 +42,8 @@ public class MainController {
                 int x = e.getX();
                 int y = e.getY();
                 String coord = getMouseCoordinate(x, y);
-                System.out.println(coord);
+                boardManager.setClickedSpot(coord);
+                boardManager.repaint();
             }
             public void mouseEntered(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}

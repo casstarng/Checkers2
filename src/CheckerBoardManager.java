@@ -14,6 +14,7 @@ public class CheckerBoardManager extends JPanel {
     ArrayList<String> nextChain = null;
     ArrayList<Integer> commandWithKingDeleted = new ArrayList<>();
     ArrayList<Integer> commandWithKingCreated = new ArrayList<>();
+    String clickedSpot;
 
     public CheckerBoardManager(CheckerBoard board){
         test = "this is a test";
@@ -51,10 +52,26 @@ public class CheckerBoardManager extends JPanel {
         }
 
         // Paint Pieces that can be moved
-        checkMoveablePieces();
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(5));
-        g.drawRect(60,60,50,50);
+        ArrayList<String> moveablePieces = checkMoveablePieces();
+        for (String piece : moveablePieces){
+            String[] spot = piece.split("-");
+            g.setColor(Color.GREEN);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setStroke(new BasicStroke(5));
+            g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+        }
+//        Graphics2D g2 = (Graphics2D) g;
+//        g2.setStroke(new BasicStroke(5));
+//        g.drawRect(60,60,50,50);
+
+        // Clicked spot
+        if (clickedSpot != null){
+            g.setColor(Color.WHITE);
+            String[] spot = clickedSpot.split("-");
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setStroke(new BasicStroke(5));
+            g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+        }
     }
 
     /**
@@ -76,18 +93,28 @@ public class CheckerBoardManager extends JPanel {
         }
     }
 
-    public String checkMoveablePieces(){
+    public void setClickedSpot(String spot){
+        this.clickedSpot = spot;
+        System.out.println(spot);
+    }
+
+    public ArrayList<String> checkMoveablePieces(){
+        ArrayList<String> moveablePieces = new ArrayList<>();
         for(int i = 0; i < board.getBoard().length; i++){
             for(int k = 0; k < board.getBoard()[i].length; k++){
                 // Red's turn
                 if (board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.RED){
-                    if ( i-1 > 0 && k-1 > 0 && board.getBoard()[i-1][k-1] == null){
-                        System.out.println(i + " " + k);
+                    if (i - 1 >= 0 && k - 1 >= 0 && board.getBoard()[i-1][k-1] == null){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
+                    }
+                    if (i - 1 >= 0 && k + 1 < board.getBoard().length && board.getBoard()[i-1][k+1] == null){
+                        if (!moveablePieces.contains(i + "-" + k))  moveablePieces.add(i + "-" + k);
                     }
                 }
             }
         }
-        return null;
+        System.out.println(moveablePieces.toString());
+        return moveablePieces;
     }
 
     /**
