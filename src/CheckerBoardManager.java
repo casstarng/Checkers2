@@ -95,6 +95,16 @@ public class CheckerBoardManager extends JPanel {
         ArrayList<String> moveablePieces = new ArrayList<>();
         for(int i = 0; i < board.getBoard().length; i++){
             for(int k = 0; k < board.getBoard()[i].length; k++){
+                // If piece is king
+                if (board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == currentTurn && board.getBoard()[i][k].isKing()){
+                    // Get 1 space in all directions
+                    if ((i - 1 >= 0 && k - 1 >= 0 && board.getBoard()[i-1][k-1] == null)
+                            || (i - 1 >= 0 && k + 1 < board.getBoard().length && board.getBoard()[i-1][k+1] == null)
+                            || (i + 1 < board.getBoard().length && k - 1 >= 0 && board.getBoard()[i+1][k-1] == null)
+                            || (i + 1 < board.getBoard().length && k + 1 < board.getBoard().length && board.getBoard()[i+1][k+1] == null)){
+                        moveablePieces.add(i + "-" + k);
+                    }
+                }
                 // Red's turn
                 if (currentTurn == Color.RED && board.getBoard()[i][k] != null && board.getBoard()[i][k].getColor() == Color.RED){
                     // Get 1 space up left
