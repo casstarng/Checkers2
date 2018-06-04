@@ -118,27 +118,100 @@ public class CheckerBoardManager extends JPanel {
         return moveablePieces;
     }
 
-    public void move(String spot){
+    public void select(String spot){
+        if (spot == null){
+            selectedSpot = null;
+            return;
+        }
+
         ArrayList<String> moveablePieces = checkMoveablePieces();
+        String[] newSpot = spot.split("-");
+        if (selectedSpot != null && board.getBoard()[Integer.parseInt(newSpot[0])][Integer.parseInt(newSpot[1])] != null){
+            return;
+        }
+        // Initial select if none are selected, check if spot can be selected
         if (selectedSpot == null && moveablePieces.contains(spot)){
             selectedSpot = spot;
         }
-        else if (selectedSpot == null){
-            return;
-        }
-        else{
+        // If spot is selected and new spot is empty
+        else if (selectedSpot != null && board.getBoard()[Integer.parseInt(newSpot[0])][Integer.parseInt(newSpot[1])] == null){
             String[] oldSpot = selectedSpot.split("-");
-            String[] newSpot = spot.split("-");
             // TODO ensure new spot is empty and not wrong direction
             CheckerPiece piece = board.getBoard()[Integer.parseInt(oldSpot[0])][Integer.parseInt(oldSpot[1])];
-            board.movePiece(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
-                    Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing());
+//            board.movePiece(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
+//                    Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing());
             selectedSpot = null;
+
+            String msg = move(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
+                    Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing(), 0);
+
+            if (msg != null){
+                return;
+            }
 
             // Switch turns
             if (currentTurn == Color.RED) currentTurn = Color.BLACK;
             else currentTurn = Color.RED;
         }
+    }
+
+    private String move(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
+        // Check if piece moves 1 space
+        if (Math.abs(y - g) == 1 && Math.abs(x - h) == 1 && board.getBoard()[g][h] == null){
+            // If piece is black, check if move goes down
+            if (color == Color.BLACK && g > y){
+                board.movePiece(y, x, g, h, color, isKing);
+            }
+            // If piece is red, check if move goes up
+            else if (color == Color.RED && g < y){
+                board.movePiece(y, x, g, h, color, isKing);
+            }
+            else{
+                return "Illegal Move";
+            }
+            return null;
+        }
+        // Check if piece moves 2 spaces (needs to delete opposing piece)
+        else if (Math.abs(y - g) == 2 && Math.abs(x - h) == 2 && board.getBoard()[g][h] == null){
+            // If piece is black, check if move goes down
+            if (color == Color.BLACK && g > y){
+                // check if case moves left and that the piece will skip over a red piece
+                if (x - h > 0 && board.getBoard()[y + 1][x - 1] != null && board.getBoard()[y + 1][x - 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y + 1, x - 1);
+                }
+                // check if case moves right and that the piece will skip over a red piece
+                else if (x - h < 0 && board.getBoard()[y + 1][x + 1] != null && board.getBoard()[y + 1][x + 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y + 1, x + 1);
+                }
+                else {
+                    return "Illegal Move";
+                }
+                return null;
+            }
+            // If piece is red, check if move goes up
+            else if (color == Color.RED && g < y){
+                // check if case moves left and that the piece will skip over a black piece
+                if (x - h > 0 && board.getBoard()[y - 1][x - 1] != null && board.getBoard()[y - 1][x - 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y - 1, x - 1);
+                }
+                // check if case moves right and that the piece will skip over a black piece
+                else if (x - h < 0 && board.getBoard()[y - 1][x + 1] != null && board.getBoard()[y - 1][x + 1].getColor() != color){
+                    board.movePiece(y, x, g, h, color, isKing);
+                    board.deletePiece(y - 1, x + 1);
+                }
+                else {
+                    return "Illegal Move";
+                }
+                return null;
+            }
+            else{
+                return "Illegal Move";
+            }
+        }
+        return "Illegal Move";
     }
 
     /**
