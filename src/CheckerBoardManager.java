@@ -8,12 +8,8 @@ import java.util.ArrayList;
 public class CheckerBoardManager extends JPanel {
 
     CheckerBoard board = new CheckerBoard();
-    Color nextTurn = Color.RED;
     Color currentTurn = Color.RED;
-    boolean initialTurn = true;
     ArrayList<String> nextChain = null;
-    ArrayList<Integer> commandWithKingDeleted = new ArrayList<>();
-    ArrayList<Integer> commandWithKingCreated = new ArrayList<>();
     String selectedSpot;
     ArrayList<String> spotsToMove;
 
@@ -52,7 +48,6 @@ public class CheckerBoardManager extends JPanel {
 
         // Paint piece in a chain sequence
         if (nextChain != null){
-            System.out.println(nextChain.toString());
             String[] spot = nextChain.get(0).split("-");
             g.setColor(Color.CYAN);
             Graphics2D g2 = (Graphics2D) g;
@@ -87,6 +82,12 @@ public class CheckerBoardManager extends JPanel {
                 g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
             }
         }
+
+        String winner = checkWinner();
+        if (winner != null){
+            JOptionPane.showMessageDialog(this, winner);
+            System.exit(0);
+        }
     }
 
     /**
@@ -109,8 +110,6 @@ public class CheckerBoardManager extends JPanel {
     }
 
     //TODO Issue with Black King only being able to move
-    //TODO King can jump after becoming a king
-    //TODO Check for winner
     public ArrayList<String> checkMoveablePieces(){
         ArrayList<String> moveablePieces = new ArrayList<>();
         ArrayList<String> jumpablePieces = new ArrayList<>();
@@ -127,9 +126,9 @@ public class CheckerBoardManager extends JPanel {
                     }
                     // Get 2 space in all directions
                     if ((i - 2 >= 0 && k - 2 >= 0 && board.getBoard()[i-2][k-2] == null && board.getBoard()[i-1][k-1] != null && board.getBoard()[i-1][k-1].getColor() != board.getBoard()[i][k].getColor())
-                            || (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() == board.getBoard()[i][k].getColor())
-                            || (i + 2 < board.getBoard().length && k - 2 >= 0 && board.getBoard()[i+2][k-2] == null && board.getBoard()[i+1][k-1] != null && board.getBoard()[i+1][k-1].getColor() == board.getBoard()[i][k].getColor())
-                            || (i + 2 < board.getBoard().length && k + 2 < board.getBoard().length && board.getBoard()[i+2][k+2] == null && board.getBoard()[i+1][k+1] != null && board.getBoard()[i+1][k+1].getColor() == board.getBoard()[i][k].getColor())){
+                            || (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() != board.getBoard()[i][k].getColor())
+                            || (i + 2 < board.getBoard().length && k - 2 >= 0 && board.getBoard()[i+2][k-2] == null && board.getBoard()[i+1][k-1] != null && board.getBoard()[i+1][k-1].getColor() != board.getBoard()[i][k].getColor())
+                            || (i + 2 < board.getBoard().length && k + 2 < board.getBoard().length && board.getBoard()[i+2][k+2] == null && board.getBoard()[i+1][k+1] != null && board.getBoard()[i+1][k+1].getColor() != board.getBoard()[i][k].getColor())){
                         if (!jumpablePieces.contains(i + "-" + k))  jumpablePieces.add(i + "-" + k);
                     }
                 }
@@ -181,7 +180,41 @@ public class CheckerBoardManager extends JPanel {
         ArrayList<String> moveable = new ArrayList<>();
         ArrayList<String> jumpable = new ArrayList<>();
         CheckerPiece selectedPiece = board.getBoard()[y][x];
-        if (selectedPiece.getColor() == Color.RED){
+        if (selectedPiece.isKing()){
+            // Get 1 space up left
+            if (y - 1 >= 0 && x - 1 >= 0 && board.getBoard()[y-1][x-1] == null){
+                if (!moveable.contains((y-1) + "-" + (x-1)))  moveable.add((y-1) + "-" + (x-1));
+            }
+            // Get 1 space up right
+            if (y - 1 >= 0 && x + 1 < board.getBoard().length && board.getBoard()[y-1][x+1] == null){
+                if (!moveable.contains((y-1) + "-" + (x+1)))  moveable.add((y-1) + "-" + (x+1));
+            }
+            // Get 1 space down left
+            if (y + 1 < board.getBoard().length && x - 1 >= 0 && board.getBoard()[y+1][x-1] == null){
+                if (!moveable.contains((y+1) + "-" + (x-1)))  moveable.add((y+1) + "-" + (x-1));
+            }
+            // Get 1 space down right
+            if (y + 1 < board.getBoard().length && x + 1 < board.getBoard().length && board.getBoard()[y+1][x+1] == null){
+                if (!moveable.contains((y+1) + "-" + (x+1)))  moveable.add((y+1) + "-" + (x+1));
+            }
+            // Get 2 space up left, delete
+            if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() != currentTurn){
+                if (!jumpable.contains((y-2) + "-" + (x-2)))  jumpable.add((y-2) + "-" + (x-2));
+            }
+            // Get 2 space up right, delete
+            if (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null && board.getBoard()[y-1][x+1] != null && board.getBoard()[y-1][x+1].getColor() != currentTurn){
+                if (!jumpable.contains((y-2) + "-" + (x+2)))  jumpable.add((y-2) + "-" + (x+2));
+            }
+            // Get 2 space down left, delete
+            if (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null && board.getBoard()[y+1][x-1] != null && board.getBoard()[y+1][x-1].getColor() != currentTurn){
+                if (!jumpable.contains((y+2) + "-" + (x-2)))  jumpable.add((y+2) + "-" + (x-2));
+            }
+            // Get 2 space down right, delete
+            if (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null && board.getBoard()[y+1][x+1] != null && board.getBoard()[y+1][x+1].getColor() != currentTurn){
+                if (!jumpable.contains((y+2) + "-" + (x+2)))  jumpable.add((y+2) + "-" + (x+2));
+            }
+        }
+        else if (selectedPiece.getColor() == Color.RED){
             // Get 1 space up left
             if (y - 1 >= 0 && x - 1 >= 0 && board.getBoard()[y-1][x-1] == null){
                 if (!moveable.contains((y-1) + "-" + (x-1)))  moveable.add((y-1) + "-" + (x-1));
@@ -265,7 +298,6 @@ public class CheckerBoardManager extends JPanel {
     }
 
     private String move(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
-        if (nextChain != null) System.out.println(nextChain.toString());
         // Checks to see if a chain needs to be made
         if (nextChain != null){
             String currentCommand = y + "-" + x + "-" + g + "-" + h;
@@ -391,173 +423,6 @@ public class CheckerBoardManager extends JPanel {
     }
 
     /**
-     * Handles moving pieces. All logic is contained here
-     * @return message if a winner is announced or an illegal move is made
-     */
-    public String moveOLD(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
-
-        // Checks to see if a chain needs to be made
-        if (nextChain != null){
-            String currentCommand = y + "-" + x + "-" + g + "-" + h;
-            if (nextChain.contains(currentCommand)){
-                nextChain = null;
-            }
-            else {
-                return "Illegal Move: Another jump must be made";
-            }
-        }
-        // Checks to see if a jump needs to be made
-        else{
-            ArrayList<String> mandatoryJumps = getMandatoryJump();
-            String currentCommand = y + "-" + x + "-" + g + "-" + h;
-            if (mandatoryJumps.size() > 0 && !mandatoryJumps.contains(currentCommand)){
-                return "Illegal Move: A jump must be made";
-            }
-        }
-
-        // Check if player's turn is correct
-        if (color != nextTurn && !initialTurn) return "Wrong turn";
-
-        // If piece reaches end, change piece to king
-        if ((color == Color.BLACK && g == 7) || (color == Color.RED && g == 0)){
-            isKing = true;
-            commandWithKingCreated.add(commandCounter);
-        }
-
-        // Check if piece moves 1 space
-        if (Math.abs(y - g) == 1 && Math.abs(x - h) == 1 && board.getBoard()[g][h] == null){
-
-            // If piece is a king, then move
-            if (isKing){
-                board.movePiece(y, x, g, h, color, isKing);
-            }
-            // If piece is black, check if move goes down
-            else if (color == Color.BLACK && g > y){
-                board.movePiece(y, x, g, h, color, isKing);
-            }
-            // If piece is red, check if move goes up
-            else if (color == Color.RED && g < y){
-                board.movePiece(y, x, g, h, color, isKing);
-            }
-            else{
-                return "Illegal Move";
-            }
-        }
-        // Check if piece moves 2 spaces (needs to delete opposing piece)
-        else if (Math.abs(y - g) == 2 && Math.abs(x - h) == 2 && board.getBoard()[g][h] == null){
-            // If piece is a king
-            if (isKing){
-                // If piece moves up-left
-                if (y - g > 0 && x - h > 0 && board.getBoard()[y - 1][x - 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y - 1][x - 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y - 1, x - 1);
-                }
-                // If piece moves up-right
-                else if (y - g > 0 && x - h < 0 && board.getBoard()[y - 1][x + 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y - 1][x + 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y - 1, x + 1);
-                }
-                // If piece moves down-left
-                else if (y - g < 0 && x - h > 0 && board.getBoard()[y + 1][x - 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y + 1][x - 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y + 1, x - 1);
-                }
-                // If piece moves down-right
-                else if (y - g < 0 && x - h < 0 && board.getBoard()[y + 1][x + 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y + 1][x + 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y + 1, x + 1);
-                }
-
-                // Check if next step is chainable
-                nextChain = checkForChain(g, h, color, isKing);
-                if (nextChain != null) return null;
-            }
-            // If piece is black, check if move goes down
-            else if (color == Color.BLACK && g > y){
-                // check if case moves left and that the piece will skip over a red piece
-                if (x - h > 0 && board.getBoard()[y + 1][x - 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y + 1][x - 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y + 1, x - 1);
-
-                    // Check if next step is chainable
-                    nextChain = checkForChain(g, h, color, isKing);
-                    if (nextChain != null) return null;
-                }
-                // check if case moves right and that the piece will skip over a red piece
-                else if (x - h < 0 && board.getBoard()[y + 1][x + 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y + 1][x + 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y + 1, x + 1);
-
-                    // Check if next step is chainable
-                    nextChain = checkForChain(g, h, color, isKing);
-                    if (nextChain != null) return null;
-                }
-                else {
-                    return "Illegal Move";
-                }
-            }
-            // If piece is red, check if move goes up
-            else if (color == Color.RED && g < y){
-                // check if case moves left and that the piece will skip over a black piece
-                if (x - h > 0 && board.getBoard()[y - 1][x - 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y - 1][x - 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y - 1, x - 1);
-
-                    // Check if next step is chainable
-                    nextChain = checkForChain(g, h, color, isKing);
-                    if (nextChain != null) return null;
-                }
-                // check if case moves right and that the piece will skip over a black piece
-                else if (x - h < 0 && board.getBoard()[y - 1][x + 1].getColor() != color){
-                    board.movePiece(y, x, g, h, color, isKing);
-                    // Check if King is deleted, if so then record (needed for previous button)
-                    if (board.getBoard()[y - 1][x + 1].isKing()) commandWithKingDeleted.add(commandCounter);
-                    board.deletePiece(y - 1, x + 1);
-
-                    // Check if next step is chainable
-                    nextChain = checkForChain(g, h, color, isKing);
-                    if (nextChain != null) return null;
-                }
-                else {
-                    return "Illegal Move";
-                }
-            }
-            else{
-                return "Illegal Move";
-            }
-        }
-        else{
-            return "Illegal Move";
-        }
-
-        // Change turns
-        initialTurn = false;
-        if (color == Color.RED) nextTurn = Color.BLACK;
-        else if (color == Color.BLACK) nextTurn = Color.RED;
-
-        // Check for a winner
-        String win = checkWinner();
-        if (win != null){
-            return win;
-        }
-        else return null;
-    }
-
-    /**
      * Checks if a winner exists
      * @return winner message
      */
@@ -624,79 +489,6 @@ public class CheckerBoardManager extends JPanel {
         }
         if (chainOptions.size() > 0) return chainOptions;
         else return null;
-    }
-
-    /**
-     * Checks whether a mandatory jump exists
-     * @return list of mandatory jumps
-     */
-    public ArrayList<String> getMandatoryJump(){
-        ArrayList<String> mandatoryJumps = new ArrayList<>();
-        for(int i = 0; i < board.getBoard().length; i++){
-            for(int k = 0; k < board.getBoard()[i].length; k++){
-                // check whether a jump exists
-                if (!initialTurn && board.getBoard()[i][k] != null
-                        && board.getBoard()[i][k].getColor() == nextTurn){
-                    CheckerPiece piece = board.getBoard()[i][k];
-                    Color pieceColor = piece.getColor();
-                    Boolean isKing = piece.isKing();
-
-                    ArrayList<String> jumps = checkForChain(i, k, pieceColor, isKing);
-                    if (jumps != null) mandatoryJumps.addAll(jumps);
-                }
-            }
-        }
-        return mandatoryJumps;
-    }
-
-    /**
-     * rewinds the command. Checks if a king was deleted or if a king was created
-     */
-    public void rewind(int y, int x, int g, int h, Color color, boolean isKing, int commandCounter){
-        nextTurn = color;
-        Color oppositeColor = null;
-        boolean kingDeleted = false;
-
-        // Check if a King was deleted at specific commandCounter
-        if (commandWithKingDeleted.contains(commandCounter)) kingDeleted = true;
-
-        // Check if a King was created at specific commandCounter
-        if (commandWithKingCreated.contains(commandCounter)) isKing = false;
-
-        if (color == Color.RED) oppositeColor = Color.BLACK;
-        else if (color == Color.BLACK) oppositeColor = Color.RED;
-
-        // Check if piece moves 1 space
-        if (Math.abs(y - g) == 1 && Math.abs(x - h) == 1){
-            board.deletePiece(g, h);
-            board.insertPiece(y, x, color, isKing);
-        }
-        else {
-            // If piece moved up-left
-            if (y - g > 0 && x - h > 0){
-                board.deletePiece(g, h);
-                board.insertPiece(y - 1, x - 1, oppositeColor, kingDeleted);
-                board.insertPiece(y, x, color, isKing);
-            }
-            // If piece moved up-right
-            else if (y - g > 0 && x - h < 0){
-                board.deletePiece(g, h);
-                board.insertPiece(y - 1, x + 1, oppositeColor, kingDeleted);
-                board.insertPiece(y, x, color, isKing);
-            }
-            // If piece moved down-left
-            else if (y - g < 0 && x - h > 0){
-                board.deletePiece(g, h);
-                board.insertPiece(y + 1, x - 1, oppositeColor, kingDeleted);
-                board.insertPiece(y, x, color, isKing);
-            }
-            // If piece moved down-right
-            else if (y - g < 0 && x - h < 0){
-                board.deletePiece(g, h);
-                board.insertPiece(y + 1, x + 1, oppositeColor, kingDeleted);
-                board.insertPiece(y, x, color, isKing);
-            }
-        }
     }
 
 }
