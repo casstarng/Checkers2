@@ -15,6 +15,7 @@ public class CheckerBoardManager extends JPanel {
     ArrayList<Integer> commandWithKingDeleted = new ArrayList<>();
     ArrayList<Integer> commandWithKingCreated = new ArrayList<>();
     String selectedSpot;
+    ArrayList<String> spotsToMove;
 
     public CheckerBoardManager(CheckerBoard board){
         this.board = board;
@@ -79,7 +80,7 @@ public class CheckerBoardManager extends JPanel {
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
 
             // Draw available spots to move to
-            ArrayList<String> spotsToMove = getMoveOptions(Integer.parseInt(spot[1]), Integer.parseInt(spot[0]));
+            spotsToMove = getMoveOptions(Integer.parseInt(spot[1]), Integer.parseInt(spot[0]));
             for (String availSpots : spotsToMove){
                 spot = availSpots.split("-");
                 g.setColor(Color.GREEN);
@@ -107,11 +108,9 @@ public class CheckerBoardManager extends JPanel {
         }
     }
 
-    //TODO Mandatory jump can be jumped to a non-mandatory jump
     //TODO Issue with Black King only being able to move
     //TODO King can jump after becoming a king
     //TODO Check for winner
-    //TODO Moveable spots
     public ArrayList<String> checkMoveablePieces(){
         ArrayList<String> moveablePieces = new ArrayList<>();
         ArrayList<String> jumpablePieces = new ArrayList<>();
@@ -225,6 +224,13 @@ public class CheckerBoardManager extends JPanel {
     public void select(String spot){
         if (spot == null){
             selectedSpot = null;
+            spotsToMove = null;
+            return;
+        }
+        // Deselect if anywhere clicked except GREEN
+        if (spotsToMove != null && !spotsToMove.contains(spot)){
+            selectedSpot = null;
+            spotsToMove = null;
             return;
         }
 
@@ -240,11 +246,10 @@ public class CheckerBoardManager extends JPanel {
         // If spot is selected and new spot is empty
         else if (selectedSpot != null && board.getBoard()[Integer.parseInt(newSpot[0])][Integer.parseInt(newSpot[1])] == null){
             String[] oldSpot = selectedSpot.split("-");
-            // TODO ensure new spot is empty and not wrong direction
             CheckerPiece piece = board.getBoard()[Integer.parseInt(oldSpot[0])][Integer.parseInt(oldSpot[1])];
-//            board.movePiece(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
-//                    Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing());
+
             selectedSpot = null;
+            spotsToMove = null;
 
             String msg = move(Integer.parseInt(oldSpot[0]), Integer.parseInt(oldSpot[1]),
                     Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor(), piece.isKing(), 0);
