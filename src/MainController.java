@@ -25,11 +25,19 @@ public class MainController {
         commandPanel.setBorder(new EmptyBorder(175,0,100,0));
         JButton hintButton = new JButton("Hint");
 
+
         Box box = Box.createVerticalBox();
         box.add(hintButton);
         commandPanel.add(box, BorderLayout.CENTER);
 
         CheckerBoardManager boardManager = new CheckerBoardManager(board);
+
+        hintButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boardManager.getHint();
+            }
+        });
+
         JFrame frame = new JFrame();
         frame.setLayout(new GridLayout(1, 2));
         frame.setTitle("Checkers");
@@ -50,6 +58,7 @@ public class MainController {
             public void mouseExited(MouseEvent e) {}
             public void mousePressed(MouseEvent e) {}
         });
+
 
         frame.add(boardManager);
         frame.add(commandPanel);

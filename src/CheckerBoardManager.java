@@ -491,5 +491,57 @@ public class CheckerBoardManager extends JPanel {
         else return null;
     }
 
+    //TODO get max chain move
+    //TODO get left safest move
+    public void getHint(){
+        ArrayList<String> moveablePieces = checkMoveablePieces();
+        for (String moveable : moveablePieces){
+            String[] spot = moveable.split("-");
+            CheckerPiece piece = board.getBoard()[Integer.parseInt(spot[0])][Integer.parseInt(spot[1])];
+            int chain = getChain(Integer.parseInt(spot[0]), Integer.parseInt(spot[1]), piece.isKing());
+            System.out.println(chain);
+        }
+    }
+
+    public int getChain(int y, int x, boolean isKing){
+        if (currentTurn == Color.RED){
+            int left = 0;
+            int right = 0;
+            // Get 2 space up left, delete
+            if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() == Color.BLACK){
+                left =  1 + getChain(y-2, x-2, isKing);
+            }
+            // Get 2 space up right, delete
+            if (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null && board.getBoard()[y-1][x+1] != null && board.getBoard()[y-1][x+1].getColor() == Color.BLACK){
+                right =  1 + getChain(y-2, x+2, isKing);
+            }
+            if(left == 0 && right == 0){
+                return 0;
+            }
+            else{
+                return Math.max(left, right);
+            }
+        }
+        else if (currentTurn == Color.BLACK){
+            int left = 0;
+            int right = 0;
+            // Get 2 space down left, delete
+            if (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null && board.getBoard()[y+1][x-1] != null && board.getBoard()[y+1][x-1].getColor() == Color.RED){
+                return 1 + getChain(y+2, x-2, isKing);
+            }
+            // Get 2 space down right, delete
+            if (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null && board.getBoard()[y+1][x+1] != null && board.getBoard()[y+1][x+1].getColor() == Color.RED){
+                return 1 + getChain(y+2, x+2, isKing);
+            }
+            if(left == 0 && right == 0){
+                return 0;
+            }
+            else{
+                return Math.max(left, right);
+            }
+        }
+        else return 0;
+    }
+
 }
 
