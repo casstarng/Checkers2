@@ -7,12 +7,12 @@ import java.util.ArrayList;
  */
 public class CheckerBoardManager extends JPanel {
 
-    CheckerBoard board = new CheckerBoard();
-    Color currentTurn = Color.RED;
-    ArrayList<String> nextChain = null;
-    String selectedSpot;
-    ArrayList<String> spotsToMove;
-    boolean newKingCanJump = false;
+    private CheckerBoard board = new CheckerBoard();
+    private Color currentTurn = Color.RED;
+    private ArrayList<String> nextChain = null;
+    private String selectedSpot;
+    private ArrayList<String> spotsToMove;
+    private boolean newKingCanJump = false;
 
     public CheckerBoardManager(CheckerBoard board){
         this.board = board;

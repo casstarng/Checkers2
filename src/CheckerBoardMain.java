@@ -14,11 +14,9 @@ import java.util.LinkedList;
 /**
  * Created by Cassidy Tarng on 5/8/2018.
  */
-public class MainController {
+public class CheckerBoardMain {
 
-    public static void main(String[] args){
-
-
+    CheckerBoardMain(){
         CheckerBoard board = new CheckerBoard();
 
         JPanel commandPanel = new JPanel();

@@ -2,7 +2,7 @@ import java.awt.*;
 
 public class CheckerBoard {
 
-    static CheckerPiece[][] board = new CheckerPiece[8][8];
+    private static CheckerPiece[][] board = new CheckerPiece[8][8];
 
     public CheckerBoard(){
         // Initialize Black Pieces
