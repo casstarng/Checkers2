@@ -13,6 +13,8 @@ public class CheckerBoardManager extends JPanel {
     private String selectedSpot;
     private ArrayList<String> spotsToMove;
     private boolean newKingCanJump = false;
+    private boolean hintActivated = false;
+    private String hintCoord;
 
     public CheckerBoardManager(CheckerBoard board){
         this.board = board;
@@ -76,10 +78,19 @@ public class CheckerBoardManager extends JPanel {
             g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
 
             // Draw available spots to move to
-            spotsToMove = getMoveOptions(Integer.parseInt(spot[1]), Integer.parseInt(spot[0]));
-            for (String availSpots : spotsToMove){
-                spot = availSpots.split("-");
-                g.setColor(Color.GREEN);
+            if (hintActivated == false){
+                spotsToMove = getMoveOptions(Integer.parseInt(spot[1]), Integer.parseInt(spot[0]));
+                for (String availSpots : spotsToMove){
+                    spot = availSpots.split("-");
+                    g.setColor(Color.GREEN);
+                    g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
+                }
+            }
+            // Highlight the best move
+            else{
+                hintActivated = false;
+                spot = hintCoord.split("-");
+                g.setColor(Color.YELLOW);
                 g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
             }
         }
@@ -512,56 +523,109 @@ public class CheckerBoardManager extends JPanel {
         return false;
     }
 
+    public class Hint
+    {
+        public int chain;
+        public String fromCoord;
+        public String toCoord;
+
+        Hint(int chain, String fromCoord, String toCoord){
+            this.chain = chain;
+            this.fromCoord = fromCoord;
+            this.toCoord = toCoord;
+        }
+    }
+
     //TODO get max chain move
     //TODO get left safest move
     public void getHint(){
         ArrayList<String> moveablePieces = checkMoveablePieces();
+        ArrayList<Hint> hints = new ArrayList<>();
         for (String moveable : moveablePieces){
             String[] spot = moveable.split("-");
             CheckerPiece piece = board.getBoard()[Integer.parseInt(spot[0])][Integer.parseInt(spot[1])];
-            int chain = getChain(Integer.parseInt(spot[0]), Integer.parseInt(spot[1]), piece.isKing());
-            System.out.println(chain);
+            Hint chain = getChain(Integer.parseInt(spot[0]), Integer.parseInt(spot[1]), piece.isKing());
+            hints.add(chain);
+        }
+
+        Hint bestHint = new Hint(0, "", "");
+
+        // Find the hint with the most moves
+        for(Hint hint : hints){
+            if (hint.chain > bestHint.chain) bestHint = hint;
+        }
+
+        // Select and highlight the best move coordinate
+        if (bestHint.chain > 0){
+            hintActivated = true;
+            ArrayList<String> hintSpots = new ArrayList<>();
+            hintSpots.add(bestHint.toCoord);
+            hintCoord = bestHint.toCoord;
+            select(bestHint.fromCoord);
+            this.repaint();
         }
     }
 
-    public int getChain(int y, int x, boolean isKing){
+    /**
+     * Figures out the best move based on number of chains and return the coordinates
+     */
+    //TODO King and if no hint exists
+    public Hint getChain(int y, int x, boolean isKing){
         if (currentTurn == Color.RED){
-            int left = 0;
-            int right = 0;
+            Hint left = new Hint(0, "", "");
+            Hint right = new Hint(0, "", "");
             // Get 2 space up left, delete
             if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() == Color.BLACK){
-                left =  1 + getChain(y-2, x-2, isKing);
+                left =  getChain(y-2, x-2, isKing);
+                left.chain++;
+                left.fromCoord = y + "-" + x;
+                left.toCoord = (y-2) + "-" + (x-2);
+                return left;
             }
             // Get 2 space up right, delete
             if (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null && board.getBoard()[y-1][x+1] != null && board.getBoard()[y-1][x+1].getColor() == Color.BLACK){
-                right =  1 + getChain(y-2, x+2, isKing);
+                right =  getChain(y-2, x+2, isKing);
+                right.chain++;
+                right.fromCoord = y + "-" + x;
+                right.toCoord = (y-2) + "-" + (x+2);
+                return right;
             }
-            if(left == 0 && right == 0){
-                return 0;
+            if(left.chain == 0 && right.chain == 0){
+                return new Hint(0, "", "");
             }
             else{
-                return Math.max(left, right);
+                if (left.chain > right.chain) return left;
+                else return right;
             }
         }
         else if (currentTurn == Color.BLACK){
-            int left = 0;
-            int right = 0;
+            Hint left = new Hint(0, "", "");
+            Hint right = new Hint(0, "", "");
             // Get 2 space down left, delete
             if (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null && board.getBoard()[y+1][x-1] != null && board.getBoard()[y+1][x-1].getColor() == Color.RED){
-                return 1 + getChain(y+2, x-2, isKing);
+                left = getChain(y+2, x-2, isKing);
+                left.chain++;
+                left.fromCoord = y + "-" + x;
+                left.toCoord = (y+2) + "-" + (x-2);
+                return left;
             }
             // Get 2 space down right, delete
             if (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null && board.getBoard()[y+1][x+1] != null && board.getBoard()[y+1][x+1].getColor() == Color.RED){
-                return 1 + getChain(y+2, x+2, isKing);
+                right = getChain(y+2, x+2, isKing);
+                right.chain++;
+                right.fromCoord = y + "-" + x;
+                right.toCoord = (y+2) + "-" + (x+2);
+                return right;
             }
-            if(left == 0 && right == 0){
-                return 0;
+            if(left.chain == 0 && right.chain == 0){
+                return new Hint(0, "", "");
             }
             else{
-                return Math.max(left, right);
+                if (left.chain > right.chain) return left;
+                else return right;
             }
         }
-        else return 0;
+        else return new Hint(0, "", "");
     }
 
 }
