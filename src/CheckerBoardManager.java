@@ -12,6 +12,7 @@ public class CheckerBoardManager extends JPanel {
     ArrayList<String> nextChain = null;
     String selectedSpot;
     ArrayList<String> spotsToMove;
+    boolean newKingCanJump = false;
 
     public CheckerBoardManager(CheckerBoard board){
         this.board = board;
@@ -292,6 +293,11 @@ public class CheckerBoardManager extends JPanel {
             }
 
             // Switch turns
+            if (newKingCanJump){
+                newKingCanJump = false;
+
+                return;
+            }
             if (currentTurn == Color.RED) currentTurn = Color.BLACK;
             else currentTurn = Color.RED;
         }
@@ -312,6 +318,8 @@ public class CheckerBoardManager extends JPanel {
         // If piece reaches end, change piece to king
         if ((color == Color.BLACK && g == 7) || (color == Color.RED && g == 0)){
             isKing = true;
+            newKingCanJump = newKingJumpable(h, g, color);
+            System.out.println(newKingCanJump);
         }
 
         // Check if piece moves 1 space
@@ -489,6 +497,19 @@ public class CheckerBoardManager extends JPanel {
         }
         if (chainOptions.size() > 0) return chainOptions;
         else return null;
+    }
+
+    public boolean newKingJumpable(int k, int i, Color color){
+
+        System.out.println("reached end" + k + " " + i);
+        // Get 2 space in all directions
+        if ((i - 2 >= 0 && k - 2 >= 0 && board.getBoard()[i-2][k-2] == null && board.getBoard()[i-1][k-1] != null && board.getBoard()[i-1][k-1].getColor() != color)
+                || (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() != color)
+                || (i + 2 < board.getBoard().length && k - 2 >= 0 && board.getBoard()[i+2][k-2] == null && board.getBoard()[i+1][k-1] != null && board.getBoard()[i+1][k-1].getColor() != color)
+                || (i + 2 < board.getBoard().length && k + 2 < board.getBoard().length && board.getBoard()[i+2][k+2] == null && board.getBoard()[i+1][k+1] != null && board.getBoard()[i+1][k+1].getColor() != color)){
+            return true;
+        }
+        return false;
     }
 
     //TODO get max chain move
