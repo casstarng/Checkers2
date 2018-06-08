@@ -121,7 +121,6 @@ public class CheckerBoardManager extends JPanel {
         }
     }
 
-    //TODO Issue with Black King only being able to move
     public ArrayList<String> checkMoveablePieces(){
         ArrayList<String> moveablePieces = new ArrayList<>();
         ArrayList<String> jumpablePieces = new ArrayList<>();
@@ -306,8 +305,9 @@ public class CheckerBoardManager extends JPanel {
             // Switch turns
             if (newKingCanJump){
                 newKingCanJump = false;
-
-                return;
+                if(newKingJumpable(Integer.parseInt(newSpot[0]), Integer.parseInt(newSpot[1]), piece.getColor())){
+                    return;
+                }
             }
             if (currentTurn == Color.RED) currentTurn = Color.BLACK;
             else currentTurn = Color.RED;
@@ -544,7 +544,7 @@ public class CheckerBoardManager extends JPanel {
         for (String moveable : moveablePieces){
             String[] spot = moveable.split("-");
             CheckerPiece piece = board.getBoard()[Integer.parseInt(spot[0])][Integer.parseInt(spot[1])];
-            Hint chain = getChain(Integer.parseInt(spot[0]), Integer.parseInt(spot[1]), piece.isKing());
+            Hint chain = getChain(Integer.parseInt(spot[0]), Integer.parseInt(spot[1]), piece.getColor(), piece.isKing());
             hints.add(chain);
         }
 
@@ -570,13 +570,41 @@ public class CheckerBoardManager extends JPanel {
      * Figures out the best move based on number of chains and return the coordinates
      */
     //TODO King and if no hint exists
-    public Hint getChain(int y, int x, boolean isKing){
-        if (currentTurn == Color.RED){
+    public Hint getChain(int y, int x, Color color, boolean isKing){
+        if (isKing){
+            System.out.println("KING");
+            Hint leftUp = new Hint(0, "", "");
+            Hint rightUp = new Hint(0, "", "");
+            // Get 2 space up left, delete
+            if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() != color){
+                leftUp =  getChain(y-2, x-2, color, isKing);
+                leftUp.chain++;
+                leftUp.fromCoord = y + "-" + x;
+                leftUp.toCoord = (y-2) + "-" + (x-2);
+                return leftUp;
+            }
+            // Get 2 space up right, delete
+            if (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null && board.getBoard()[y-1][x+1] != null && board.getBoard()[y-1][x+1].getColor() != color){
+                rightUp =  getChain(y-2, x+2, color, isKing);
+                rightUp.chain++;
+                rightUp.fromCoord = y + "-" + x;
+                rightUp.toCoord = (y-2) + "-" + (x+2);
+                return rightUp;
+            }
+            if(leftUp.chain == 0 && rightUp.chain == 0){
+                return new Hint(0, "", "");
+            }
+            else{
+                if (leftUp.chain > rightUp.chain) return leftUp;
+                else return rightUp;
+            }
+        }
+        else if (currentTurn == Color.RED){
             Hint left = new Hint(0, "", "");
             Hint right = new Hint(0, "", "");
             // Get 2 space up left, delete
             if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() == Color.BLACK){
-                left =  getChain(y-2, x-2, isKing);
+                left =  getChain(y-2, x-2, color, isKing);
                 left.chain++;
                 left.fromCoord = y + "-" + x;
                 left.toCoord = (y-2) + "-" + (x-2);
@@ -584,7 +612,7 @@ public class CheckerBoardManager extends JPanel {
             }
             // Get 2 space up right, delete
             if (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null && board.getBoard()[y-1][x+1] != null && board.getBoard()[y-1][x+1].getColor() == Color.BLACK){
-                right =  getChain(y-2, x+2, isKing);
+                right =  getChain(y-2, x+2, color, isKing);
                 right.chain++;
                 right.fromCoord = y + "-" + x;
                 right.toCoord = (y-2) + "-" + (x+2);
@@ -603,7 +631,7 @@ public class CheckerBoardManager extends JPanel {
             Hint right = new Hint(0, "", "");
             // Get 2 space down left, delete
             if (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null && board.getBoard()[y+1][x-1] != null && board.getBoard()[y+1][x-1].getColor() == Color.RED){
-                left = getChain(y+2, x-2, isKing);
+                left = getChain(y+2, x-2, color, isKing);
                 left.chain++;
                 left.fromCoord = y + "-" + x;
                 left.toCoord = (y+2) + "-" + (x-2);
@@ -611,7 +639,7 @@ public class CheckerBoardManager extends JPanel {
             }
             // Get 2 space down right, delete
             if (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null && board.getBoard()[y+1][x+1] != null && board.getBoard()[y+1][x+1].getColor() == Color.RED){
-                right = getChain(y+2, x+2, isKing);
+                right = getChain(y+2, x+2, color, isKing);
                 right.chain++;
                 right.fromCoord = y + "-" + x;
                 right.toCoord = (y+2) + "-" + (x+2);
