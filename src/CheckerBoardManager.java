@@ -90,6 +90,7 @@ public class CheckerBoardManager extends JPanel {
             else{
                 hintActivated = false;
                 spot = hintCoord.split("-");
+                hintCoord = "";
                 g.setColor(Color.YELLOW);
                 g.drawRect(10 + (Integer.parseInt(spot[1]) * 50),10 + (Integer.parseInt(spot[0]) * 50),50,50);
             }
@@ -563,12 +564,87 @@ public class CheckerBoardManager extends JPanel {
         // Select and highlight the best move coordinate
         if (bestHint.chain > 0){
             hintActivated = true;
-            ArrayList<String> hintSpots = new ArrayList<>();
-            hintSpots.add(bestHint.toCoord);
             hintCoord = bestHint.toCoord;
             select(bestHint.fromCoord);
             this.repaint();
         }
+        else{
+            Hint safeHint = getSafeHint(moveablePieces);
+            if (safeHint != null){
+                hintActivated = true;
+                hintCoord = safeHint.toCoord;
+                select(safeHint.fromCoord);
+                this.repaint();
+            }
+        }
+    }
+
+    public Hint getSafeHint(ArrayList<String> moveablePieces){
+        for (String moveable : moveablePieces){
+            String spot[];
+            if (nextChain != null){
+                spot = nextChain.get(0).split("-");
+            }
+            else {
+                spot = moveable.split("-");
+            }
+            int y = Integer.parseInt(spot[0]);
+            int x = Integer.parseInt(spot[1]);
+            if (currentTurn == Color.RED){
+                // Get 1 space up left
+                if (y - 1 >= 0 && x - 1 >= 0 && board.getBoard()[y-1][x-1] == null){
+                    // If new up left is empty or red
+                    if (((y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null)
+                            || (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] != null && board.getBoard()[y-2][x-2].getColor() == Color.RED))
+                            &&
+                            // If new up right is empty or red
+                            ((y - 2 >= 0 && x >= 0 && board.getBoard()[y-2][x] == null)
+                                    || (y - 2 >= 0 && x >= 0 && board.getBoard()[y-2][x] != null && board.getBoard()[y-2][x].getColor() == Color.RED))){
+                        return new Hint(0, y + "-" + x, (y-1) + "-" + (x-1));
+                    }
+                }
+                // Get 1 space up right
+                 if (y - 1 >= 0 && x + 1 < board.getBoard().length && board.getBoard()[y-1][x+1] == null){
+                    // If new up left is empty or red
+                    if (((y - 2 >= 0 && x >= 0 && board.getBoard()[y-2][x] == null)
+                            || (y - 2 >= 0 && x >= 0 && board.getBoard()[y-2][x] != null && board.getBoard()[y-2][x].getColor() == Color.RED))
+                            &&
+                            // If new up right is empty or red
+                            ((y - 2 >= 0 && x + 2 >= 0 && board.getBoard()[y-2][x+2] == null)
+                                    || (y - 2 >= 0 && x + 2 >= 0 && board.getBoard()[y-2][x+2] != null && board.getBoard()[y-2][x+2].getColor() == Color.RED))){
+                        return new Hint(0, y + "-" + x, (y-1) + "-" + (x+1));
+                    }
+                }
+            }
+            else if (currentTurn == Color.BLACK){
+                // Get 1 space down left
+                if (y + 1 < board.getBoard().length && x - 1 >= 0 && board.getBoard()[y+1][x-1] == null){
+                    // If new down left is empty or black
+                    if (((y + 2 >= 0 && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null)
+                            || (y + 2 >= 0 && x - 2 >= 0 && board.getBoard()[y+2][x-2] != null && board.getBoard()[y+2][x-2].getColor() == Color.BLACK))
+                            &&
+                            // If new down right is empty or black
+                            ((y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] == null)
+                                    || (y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] != null && board.getBoard()[y+2][x].getColor() == Color.BLACK))){
+                        return new Hint(0, y + "-" + x, (y+1) + "-" + (x-1));
+                    }
+                }
+                // Get 1 space down right
+                if (y + 1 < board.getBoard().length && x + 1 < board.getBoard().length && board.getBoard()[y+1][x+1] == null){
+                    // If new down left is empty or black
+                    if (((y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] == null)
+                            || (y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] != null && board.getBoard()[y+2][x].getColor() == Color.BLACK))
+                            &&
+                            // If new down right is empty or black
+                            ((y + 2 >= 0 && x + 2 >= 0 && board.getBoard()[y+2][x+2] == null)
+                                    || (y + 2 >= 0 && x + 2 >= 0 && board.getBoard()[y+2][x+2] != null && board.getBoard()[y+2][x+2].getColor() == Color.BLACK))){
+                        return new Hint(0, y + "-" + x, (y+1) + "-" + (x+1));
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
