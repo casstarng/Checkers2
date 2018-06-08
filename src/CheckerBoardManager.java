@@ -536,7 +536,6 @@ public class CheckerBoardManager extends JPanel {
         }
     }
 
-    //TODO get max chain move
     //TODO get left safest move
     public void getHint(){
         ArrayList<String> moveablePieces = checkMoveablePieces();
@@ -581,6 +580,8 @@ public class CheckerBoardManager extends JPanel {
             System.out.println("KING");
             Hint leftUp = new Hint(0, "", "");
             Hint rightUp = new Hint(0, "", "");
+            Hint leftDown = new Hint(0, "", "");
+            Hint rightDown = new Hint(0, "", "");
             // Get 2 space up left, delete
             if (y - 2 >= 0 && x - 2 >= 0 && board.getBoard()[y-2][x-2] == null && board.getBoard()[y-1][x-1] != null && board.getBoard()[y-1][x-1].getColor() != color){
                 leftUp =  getChain(y-2, x-2, color, isKing);
@@ -597,11 +598,29 @@ public class CheckerBoardManager extends JPanel {
                 rightUp.toCoord = (y-2) + "-" + (x+2);
                 return rightUp;
             }
-            if(leftUp.chain == 0 && rightUp.chain == 0){
+            // Get 2 space down left, delete
+            if (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null && board.getBoard()[y+1][x-1] != null && board.getBoard()[y+1][x-1].getColor() != color){
+                leftDown = getChain(y+2, x-2, color, isKing);
+                leftDown.chain++;
+                leftDown.fromCoord = y + "-" + x;
+                leftDown.toCoord = (y+2) + "-" + (x-2);
+                return leftDown;
+            }
+            // Get 2 space down right, delete
+            if (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null && board.getBoard()[y+1][x+1] != null && board.getBoard()[y+1][x+1].getColor() != color){
+                rightDown = getChain(y+2, x+2, color, isKing);
+                rightDown.chain++;
+                rightDown.fromCoord = y + "-" + x;
+                rightDown.toCoord = (y+2) + "-" + (x+2);
+                return rightDown;
+            }
+            if(leftUp.chain == 0 && rightUp.chain == 0 && leftDown.chain == 0 && rightDown.chain == 0){
                 return new Hint(0, "", "");
             }
             else{
-                if (leftUp.chain > rightUp.chain) return leftUp;
+                if (leftUp.chain > rightUp.chain && leftUp.chain > rightDown.chain && leftUp.chain > leftDown.chain) return leftUp;
+                else if (leftDown.chain > rightUp.chain && leftDown.chain > rightDown.chain && leftDown.chain > leftUp.chain) return leftDown;
+                else if (rightDown.chain > rightUp.chain && rightDown.chain > leftDown.chain && rightDown.chain > leftUp.chain) return rightDown;
                 else return rightUp;
             }
         }
