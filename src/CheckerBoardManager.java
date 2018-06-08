@@ -542,7 +542,13 @@ public class CheckerBoardManager extends JPanel {
         ArrayList<String> moveablePieces = checkMoveablePieces();
         ArrayList<Hint> hints = new ArrayList<>();
         for (String moveable : moveablePieces){
-            String[] spot = moveable.split("-");
+            String spot[];
+            if (nextChain != null){
+                spot = nextChain.get(0).split("-");
+            }
+            else {
+                spot = moveable.split("-");
+            }
             CheckerPiece piece = board.getBoard()[Integer.parseInt(spot[0])][Integer.parseInt(spot[1])];
             Hint chain = getChain(Integer.parseInt(spot[0]), Integer.parseInt(spot[1]), piece.getColor(), piece.isKing());
             hints.add(chain);
