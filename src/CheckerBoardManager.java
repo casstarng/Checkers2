@@ -331,7 +331,6 @@ public class CheckerBoardManager extends JPanel {
         if ((color == Color.BLACK && g == 7) || (color == Color.RED && g == 0)){
             isKing = true;
             newKingCanJump = newKingJumpable(h, g, color);
-            System.out.println(newKingCanJump);
         }
 
         // Check if piece moves 1 space
@@ -513,7 +512,6 @@ public class CheckerBoardManager extends JPanel {
 
     public boolean newKingJumpable(int k, int i, Color color){
 
-        System.out.println("reached end" + k + " " + i);
         // Get 2 space in all directions
         if ((i - 2 >= 0 && k - 2 >= 0 && board.getBoard()[i-2][k-2] == null && board.getBoard()[i-1][k-1] != null && board.getBoard()[i-1][k-1].getColor() != color)
                 || (i - 2 >= 0 && k + 2 < board.getBoard().length && board.getBoard()[i-2][k+2] == null && board.getBoard()[i-1][k+1] != null && board.getBoard()[i-1][k+1].getColor() != color)
@@ -602,6 +600,10 @@ public class CheckerBoardManager extends JPanel {
                                     || (y - 2 >= 0 && x >= 0 && board.getBoard()[y-2][x] != null && board.getBoard()[y-2][x].getColor() == Color.RED))){
                         return new Hint(0, y + "-" + x, (y-1) + "-" + (x-1));
                     }
+                    // If new space is the edge
+                    if (x - 1 == 0){
+                        return new Hint(0, y + "-" + x, (y-1) + "-" + (x-1));
+                    }
                 }
                 // Get 1 space up right
                  if (y - 1 >= 0 && x + 1 < board.getBoard().length && board.getBoard()[y-1][x+1] == null){
@@ -610,34 +612,46 @@ public class CheckerBoardManager extends JPanel {
                             || (y - 2 >= 0 && x >= 0 && board.getBoard()[y-2][x] != null && board.getBoard()[y-2][x].getColor() == Color.RED))
                             &&
                             // If new up right is empty or red
-                            ((y - 2 >= 0 && x + 2 >= 0 && board.getBoard()[y-2][x+2] == null)
-                                    || (y - 2 >= 0 && x + 2 >= 0 && board.getBoard()[y-2][x+2] != null && board.getBoard()[y-2][x+2].getColor() == Color.RED))){
+                            ((y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] == null)
+                                    || (y - 2 >= 0 && x + 2 < board.getBoard().length && board.getBoard()[y-2][x+2] != null && board.getBoard()[y-2][x+2].getColor() == Color.RED))){
                         return new Hint(0, y + "-" + x, (y-1) + "-" + (x+1));
                     }
+                     // If new space is the edge
+                     if (x + 1 == board.getBoard().length - 1){
+                         return new Hint(0, y + "-" + x, (y-1) + "-" + (x+1));
+                     }
                 }
             }
             else if (currentTurn == Color.BLACK){
                 // Get 1 space down left
                 if (y + 1 < board.getBoard().length && x - 1 >= 0 && board.getBoard()[y+1][x-1] == null){
                     // If new down left is empty or black
-                    if (((y + 2 >= 0 && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null)
-                            || (y + 2 >= 0 && x - 2 >= 0 && board.getBoard()[y+2][x-2] != null && board.getBoard()[y+2][x-2].getColor() == Color.BLACK))
+                    if (((y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] == null)
+                            || (y + 2 < board.getBoard().length && x - 2 >= 0 && board.getBoard()[y+2][x-2] != null && board.getBoard()[y+2][x-2].getColor() == Color.BLACK))
                             &&
                             // If new down right is empty or black
-                            ((y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] == null)
-                                    || (y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] != null && board.getBoard()[y+2][x].getColor() == Color.BLACK))){
+                            ((y + 2 < board.getBoard().length && x >= 0 && board.getBoard()[y+2][x] == null)
+                                    || (y + 2 < board.getBoard().length && x >= 0 && board.getBoard()[y+2][x] != null && board.getBoard()[y+2][x].getColor() == Color.BLACK))){
+                        return new Hint(0, y + "-" + x, (y+1) + "-" + (x-1));
+                    }
+                    // If new space is the edge
+                    if (x - 1 == 0){
                         return new Hint(0, y + "-" + x, (y+1) + "-" + (x-1));
                     }
                 }
                 // Get 1 space down right
                 if (y + 1 < board.getBoard().length && x + 1 < board.getBoard().length && board.getBoard()[y+1][x+1] == null){
                     // If new down left is empty or black
-                    if (((y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] == null)
-                            || (y + 2 >= 0 && x >= 0 && board.getBoard()[y+2][x] != null && board.getBoard()[y+2][x].getColor() == Color.BLACK))
+                    if (((y + 2 < board.getBoard().length && x >= 0 && board.getBoard()[y+2][x] == null)
+                            || (y + 2 < board.getBoard().length && x >= 0 && board.getBoard()[y+2][x] != null && board.getBoard()[y+2][x].getColor() == Color.BLACK))
                             &&
                             // If new down right is empty or black
-                            ((y + 2 >= 0 && x + 2 >= 0 && board.getBoard()[y+2][x+2] == null)
-                                    || (y + 2 >= 0 && x + 2 >= 0 && board.getBoard()[y+2][x+2] != null && board.getBoard()[y+2][x+2].getColor() == Color.BLACK))){
+                            ((y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] == null)
+                                    || (y + 2 < board.getBoard().length && x + 2 < board.getBoard().length && board.getBoard()[y+2][x+2] != null && board.getBoard()[y+2][x+2].getColor() == Color.BLACK))){
+                        return new Hint(0, y + "-" + x, (y+1) + "-" + (x+1));
+                    }
+                    // If new space is the edge
+                    if (x + 1 == board.getBoard().length - 1){
                         return new Hint(0, y + "-" + x, (y+1) + "-" + (x+1));
                     }
                 }
@@ -653,7 +667,6 @@ public class CheckerBoardManager extends JPanel {
     //TODO King and if no hint exists
     public Hint getChain(int y, int x, Color color, boolean isKing){
         if (isKing){
-            System.out.println("KING");
             Hint leftUp = new Hint(0, "", "");
             Hint rightUp = new Hint(0, "", "");
             Hint leftDown = new Hint(0, "", "");
